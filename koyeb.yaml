@@ -1,0 +1,10 @@
+name: finnexus-backend
+services:
+  - name: finnexus-api
+    type: web
+    build:
+      type: dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - port: 8080
+        protocol: http
