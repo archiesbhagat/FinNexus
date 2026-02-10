@@ -36,56 +36,74 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() > 0) {
-            return;
+        User admin = userRepository.findByUsername("admin").orElse(null);
+        if (admin == null) {
+            admin = new User();
+            admin.setUsername("admin");
+            admin.setEmail("admin@finnexus.com");
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRole(Role.ADMIN);
+            admin.setEnabled(true);
+            Wallet adminWallet = new Wallet();
+            adminWallet.setUser(admin);
+            adminWallet.setBalance(new BigDecimal("50000.00"));
+            adminWallet.setEquity(new BigDecimal("50000.00"));
+            admin.setWallet(adminWallet);
+            userRepository.save(admin);
+        } else if (admin.getWallet() == null) {
+            Wallet adminWallet = new Wallet();
+            adminWallet.setUser(admin);
+            adminWallet.setBalance(new BigDecimal("50000.00"));
+            adminWallet.setEquity(new BigDecimal("50000.00"));
+            admin.setWallet(adminWallet);
+            userRepository.save(admin);
         }
 
-        User admin = new User();
-        admin.setUsername("admin");
-        admin.setEmail("admin@finnexus.com");
-        admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.setRole(Role.ADMIN);
-        admin.setEnabled(true);
-        Wallet adminWallet = new Wallet();
-        adminWallet.setUser(admin);
-        adminWallet.setBalance(new BigDecimal("50000.00"));
-        adminWallet.setEquity(new BigDecimal("50000.00"));
-        admin.setWallet(adminWallet);
-        userRepository.save(admin);
+        User demo = userRepository.findByUsername("demo").orElse(null);
+        if (demo == null) {
+            demo = new User();
+            demo.setUsername("demo");
+            demo.setEmail("demo@finnexus.com");
+            demo.setPassword(passwordEncoder.encode("demo123"));
+            demo.setRole(Role.USER);
+            demo.setEnabled(true);
+            Wallet demoWallet = new Wallet();
+            demoWallet.setUser(demo);
+            demoWallet.setBalance(new BigDecimal("15000.00"));
+            demoWallet.setEquity(new BigDecimal("15000.00"));
+            demo.setWallet(demoWallet);
+            userRepository.save(demo);
+        } else if (demo.getWallet() == null) {
+            Wallet demoWallet = new Wallet();
+            demoWallet.setUser(demo);
+            demoWallet.setBalance(new BigDecimal("15000.00"));
+            demoWallet.setEquity(new BigDecimal("15000.00"));
+            demo.setWallet(demoWallet);
+            userRepository.save(demo);
+        }
 
-        User demo = new User();
-        demo.setUsername("demo");
-        demo.setEmail("demo@finnexus.com");
-        demo.setPassword(passwordEncoder.encode("demo123"));
-        demo.setRole(Role.USER);
-        demo.setEnabled(true);
-        Wallet demoWallet = new Wallet();
-        demoWallet.setUser(demo);
-        demoWallet.setBalance(new BigDecimal("15000.00"));
-        demoWallet.setEquity(new BigDecimal("15000.00"));
-        demo.setWallet(demoWallet);
-        userRepository.save(demo);
+        if (orderRepository.count() == 0 && demo != null) {
+            Order order = new Order();
+            order.setUser(demo);
+            order.setSymbol("EURUSD");
+            order.setSide(OrderSide.BUY);
+            order.setType(OrderType.MARKET);
+            order.setQuantity(new BigDecimal("1.0"));
+            order.setStatus(OrderStatus.EXECUTED);
+            order.setExecutedPrice(new BigDecimal("1.0820"));
+            order.setExecutedAt(Instant.now());
+            orderRepository.save(order);
 
-        Order order = new Order();
-        order.setUser(demo);
-        order.setSymbol("EURUSD");
-        order.setSide(OrderSide.BUY);
-        order.setType(OrderType.MARKET);
-        order.setQuantity(new BigDecimal("1.0"));
-        order.setStatus(OrderStatus.EXECUTED);
-        order.setExecutedPrice(new BigDecimal("1.0820"));
-        order.setExecutedAt(Instant.now());
-        orderRepository.save(order);
-
-        Trade trade = new Trade();
-        trade.setUser(demo);
-        trade.setOrder(order);
-        trade.setSymbol("EURUSD");
-        trade.setSide(OrderSide.BUY);
-        trade.setEntryPrice(new BigDecimal("1.0820"));
-        trade.setQuantity(new BigDecimal("1.0"));
-        trade.setStatus(TradeStatus.OPEN);
-        trade.setOpenedAt(Instant.now());
-        tradeRepository.save(trade);
+            Trade trade = new Trade();
+            trade.setUser(demo);
+            trade.setOrder(order);
+            trade.setSymbol("EURUSD");
+            trade.setSide(OrderSide.BUY);
+            trade.setEntryPrice(new BigDecimal("1.0820"));
+            trade.setQuantity(new BigDecimal("1.0"));
+            trade.setStatus(TradeStatus.OPEN);
+            trade.setOpenedAt(Instant.now());
+            tradeRepository.save(trade);
+        }
     }
 }
